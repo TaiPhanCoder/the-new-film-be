@@ -1,6 +1,6 @@
-import { CreateUserDto } from '../../dto/create-user.dto';
-import { UpdateUserDto } from '../../dto/update-user.dto';
-import { User } from '../../entities/user.entity';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { User } from '../entities/user.entity';
 
 export interface IUserRepository {
   createUser(createUserDto: CreateUserDto): Promise<User>;
