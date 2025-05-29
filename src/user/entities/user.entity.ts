@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'users' }) // It's good practice to explicitly name the table
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -8,11 +8,11 @@ export class User {
   @Column()
   name: string;
 
-  @Column()
-  username: string;
-
   @Column({ unique: true })
   email: string;
+
+  @Column({ nullable: true })
+  username: string;
 
   @Column({ default: true })
   isActive: boolean;
