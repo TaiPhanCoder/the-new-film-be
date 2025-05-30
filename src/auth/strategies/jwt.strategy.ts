@@ -22,6 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     sub: string;
     email: string;
     username: string;
+    role: string;
   }): Promise<Omit<User, 'password'>> {
     const user = await this.userService.findUserById(payload.sub);
     if (!user) {

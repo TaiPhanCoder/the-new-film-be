@@ -31,11 +31,13 @@ export class UserService {
       throw new ConflictException('Email already exists');
     }
 
-    const existingUserByUsername = await this.findUserByUsernameForAuth(
-      createUserDto.username,
-    );
-    if (existingUserByUsername) {
-      throw new ConflictException('Username already exists');
+    if (createUserDto.username) {
+      const existingUserByUsername = await this.findUserByUsernameForAuth(
+        createUserDto.username,
+      );
+      if (existingUserByUsername) {
+        throw new ConflictException('Username already exists');
+      }
     }
 
     const hashedPassword = await hashPassword(createUserDto.password);

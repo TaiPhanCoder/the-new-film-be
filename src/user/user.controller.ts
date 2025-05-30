@@ -7,6 +7,7 @@ import {
   Put,
   ParseUUIDPipe,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,15 +21,21 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '../common/enums/role.enum';
 
 @ApiBearerAuth()
 @ApiTags('Users')
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new user' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Create a new user (Admin only)' })
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({
     status: 201,
@@ -42,7 +49,8 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get all users (Admin only)' })
   @ApiResponse({ status: 200, description: 'Return all users.', type: [User] })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   async findAllUsers(): Promise<User[]> {
@@ -50,6 +58,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN, Role.USER)
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiParam({
     name: 'id',
@@ -65,7 +74,8 @@ export class UserController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update a user by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Update a user by ID (Admin only)' })
   @ApiParam({
     name: 'id',
     description: 'User ID',
@@ -89,7 +99,8 @@ export class UserController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a user by ID' })
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Delete a user by ID (Admin only)' })
   @ApiParam({
     name: 'id',
     description: 'User ID',
