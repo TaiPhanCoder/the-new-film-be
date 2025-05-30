@@ -1,13 +1,9 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { User } from '../user/entities/user.entity';
+import { LoginResponseDto } from './dto/login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,15 +16,10 @@ export class AuthService {
     email: string,
     pass: string,
   ): Promise<Omit<User, 'password'> | null> {
-    const user = await this.userService.findUserByEmailForAuth(email);
-    if (user && (await bcrypt.compare(pass, user.password))) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
+    return this.userService.validateUserCredentials(email, pass);
   }
 
-  async login(user: Omit<User, 'password'>): Promise<{ access_token: string }> {
+  async login(user: Omit<User, 'password'>): Promise<LoginResponseDto> {
     const payload = {
       email: user.email,
       sub: user.id,
@@ -40,23 +31,6 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateUserDto): Promise<User> {
-    const existingUserByEmail = await this.userService.findUserByEmailForAuth(
-      createUserDto.email,
-    );
-    if (existingUserByEmail) {
-      throw new ConflictException('Email already exists');
-    }
-
-    const existingUserByUsername =
-      await this.userService.findUserByUsernameForAuth(createUserDto.username);
-    if (existingUserByUsername) {
-      throw new ConflictException('Username already exists');
-    }
-
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    return this.userService.createUser({
-      ...createUserDto,
-      password: hashedPassword,
-    });
+    return this.userService.createUserWithHashedPassword(createUserDto);
   }
 }

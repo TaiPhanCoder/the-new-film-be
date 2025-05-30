@@ -19,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../user/entities/user.entity';
+import { LoginResponseDto } from './dto/login-response.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,10 +46,10 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'User logged in successfully.',
-    schema: { example: { access_token: 'string' } },
+    type: LoginResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async login(@Request() req): Promise<{ access_token: string }> {
+  async login(@Request() req): Promise<LoginResponseDto> {
     return this.authService.login(req.user);
   }
 
