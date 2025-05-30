@@ -40,4 +40,12 @@ export class UserRepository implements IUserRepository {
   async deleteUser(id: string): Promise<void> {
     await this.ormRepository.delete(id);
   }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.ormRepository.findOneBy({ email });
+  }
+
+  async findByUsername(username: string): Promise<User | null> {
+    return this.ormRepository.findOneBy({ username });
+  }
 }
