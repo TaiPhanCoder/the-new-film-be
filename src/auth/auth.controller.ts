@@ -19,6 +19,7 @@ import {
 } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../user/entities/user.entity';
+import { UserResponseDto } from '../user/dto/user-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 
 @ApiTags('Auth')
@@ -32,10 +33,12 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'User registered successfully.',
-    type: User,
+    type: UserResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  async register(@Body() createUserDto: CreateUserDto): Promise<User> {
+  async register(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserResponseDto> {
     return this.authService.register(createUserDto);
   }
 

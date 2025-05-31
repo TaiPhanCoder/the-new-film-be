@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../../user/user.service';
-import { User } from '../../user/entities/user.entity';
+import { UserResponseDto } from '../../user/dto/user-response.dto';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,12 +23,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     email: string;
     username: string;
     role: string;
-  }): Promise<Omit<User, 'password'>> {
+  }): Promise<UserResponseDto> {
     const user = await this.userService.findUserById(payload.sub);
     if (!user) {
       throw new UnauthorizedException();
     }
-    const { password, ...result } = user;
-    return result;
+    return user;
   }
 }

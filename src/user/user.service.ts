@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import { User } from './entities/user.entity';
 import { IUserRepository } from './interfaces/user.repository.interface';
 import { hashPassword } from '../common/utils/hash.util';
@@ -17,13 +18,14 @@ export class UserService {
     @Inject(IUserRepository) private readonly userRepository: IUserRepository,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
-    return this.userRepository.createUser(createUserDto);
+  async createUser(createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    const user = await this.userRepository.createUser(createUserDto);
+    return this.transformToResponseDto(user);
   }
 
   async createUserWithHashedPassword(
     createUserDto: CreateUserDto,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     const existingUserByEmail = await this.findUserByEmailForAuth(
       createUserDto.email,
     );
@@ -41,30 +43,35 @@ export class UserService {
     }
 
     const hashedPassword = await hashPassword(createUserDto.password);
-    return this.userRepository.createUser({
+    const user = await this.userRepository.createUser({
       ...createUserDto,
       password: hashedPassword,
     });
+    return this.transformToResponseDto(user);
   }
 
-  async findAllUsers(): Promise<User[]> {
-    return this.userRepository.findAllUsers();
+  async findAllUsers(): Promise<UserResponseDto[]> {
+    const users = await this.userRepository.findAllUsers();
+    return users.map((user) => this.transformToResponseDto(user));
   }
 
-  async findUserById(id: string): Promise<User> {
+  async findUserById(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findUserById(id);
     if (!user) {
       throw new NotFoundException(`User with ID "${id}" not found`);
     }
-    return user;
+    return this.transformToResponseDto(user);
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async updateUser(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
     const user = await this.userRepository.updateUser(id, updateUserDto);
     if (!user) {
       throw new NotFoundException(`User with ID "${id}" not found`);
     }
-    return user;
+    return this.transformToResponseDto(user);
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -89,5 +96,10 @@ export class UserService {
       return result;
     }
     return null;
+  }
+
+  private transformToResponseDto(user: User): UserResponseDto {
+    const { password, createdAt, updatedAt, ...userResponse } = user;
+    return userResponse as UserResponseDto;
   }
 }

@@ -3,6 +3,7 @@ import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { User } from '../user/entities/user.entity';
+import { UserResponseDto } from '../user/dto/user-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 
 @Injectable()
@@ -15,11 +16,20 @@ export class AuthService {
   async validateUser(
     email: string,
     pass: string,
-  ): Promise<Omit<User, 'password'> | null> {
-    return this.userService.validateUserCredentials(email, pass);
+  ): Promise<UserResponseDto | null> {
+    const userCredentials = await this.userService.validateUserCredentials(
+      email,
+      pass,
+    );
+    if (!userCredentials) {
+      return null;
+    }
+    // Transform Omit<User, 'password'> to UserResponseDto
+    const { createdAt, updatedAt, ...userResponse } = userCredentials;
+    return userResponse as UserResponseDto;
   }
 
-  async login(user: Omit<User, 'password'>): Promise<LoginResponseDto> {
+  async login(user: UserResponseDto): Promise<LoginResponseDto> {
     const payload = {
       email: user.email,
       sub: user.id,
@@ -31,7 +41,7 @@ export class AuthService {
     };
   }
 
-  async register(createUserDto: CreateUserDto): Promise<User> {
+  async register(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.createUserWithHashedPassword(createUserDto);
   }
 }

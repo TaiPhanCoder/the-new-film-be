@@ -20,6 +20,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -40,20 +41,26 @@ export class UserController {
   @ApiResponse({
     status: 201,
     description: 'The user has been successfully created.',
-    type: User,
+    type: UserResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
+  async createUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserResponseDto> {
     return this.userService.createUser(createUserDto);
   }
 
   @Get()
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Get all users (Admin only)' })
-  @ApiResponse({ status: 200, description: 'Return all users.', type: [User] })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all users.',
+    type: [UserResponseDto],
+  })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async findAllUsers(): Promise<User[]> {
+  async findAllUsers(): Promise<UserResponseDto[]> {
     return this.userService.findAllUsers();
   }
 
@@ -66,10 +73,16 @@ export class UserController {
     type: 'string',
     format: 'uuid',
   })
-  @ApiResponse({ status: 200, description: 'Return the user.', type: User })
+  @ApiResponse({
+    status: 200,
+    description: 'Return the user.',
+    type: UserResponseDto,
+  })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  async findUserById(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
+  async findUserById(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<UserResponseDto> {
     return this.userService.findUserById(id);
   }
 
@@ -86,7 +99,7 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'The user has been successfully updated.',
-    type: User,
+    type: UserResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
@@ -94,7 +107,7 @@ export class UserController {
   async updateUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
+  ): Promise<UserResponseDto> {
     return this.userService.updateUser(id, updateUserDto);
   }
 
