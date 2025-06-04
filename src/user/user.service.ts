@@ -10,12 +10,14 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { User } from './entities/user.entity';
 import { IUserRepository } from './interfaces/user.repository.interface';
 import { hashPassword } from '../common/utils/hash.util';
+import { RedisService } from '../common/services/redis.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(IUserRepository) private readonly userRepository: IUserRepository,
+    private readonly redisService: RedisService,
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<UserResponseDto> {
@@ -98,8 +100,43 @@ export class UserService {
     return null;
   }
 
+  async updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+    expiresAt: Date | null,
+  ): Promise<void> {
+    if (refreshToken && expiresAt) {
+      // Calculate TTL in seconds
+      const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+      if (ttl > 0) {
+        await this.redisService.setRefreshToken(userId, refreshToken, ttl);
+        await this.redisService.setTokenToUserMapping(
+          refreshToken,
+          userId,
+          ttl,
+        );
+      }
+    } else {
+      // Clear refresh token (logout)
+      await this.redisService.clearAllRefreshTokensForUser(userId);
+    }
+  }
+
+  async findUserByRefreshToken(refreshToken: string): Promise<User | null> {
+    const userId = await this.redisService.findUserByRefreshToken(refreshToken);
+    if (!userId) {
+      return null;
+    }
+    return this.userRepository.findUserById(userId);
+  }
+
   private transformToResponseDto(user: User): UserResponseDto {
-    const { password, createdAt, updatedAt, ...userResponse } = user;
+    const {
+      password,
+      createdAt,
+      updatedAt,
+      ...userResponse
+    } = user;
     return userResponse as UserResponseDto;
   }
 }

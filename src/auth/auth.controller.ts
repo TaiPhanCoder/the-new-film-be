@@ -21,6 +21,7 @@ import { LoginDto } from './dto/login.dto';
 import { User } from '../user/entities/user.entity';
 import { UserResponseDto } from '../user/dto/user-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -75,5 +76,37 @@ export class AuthController {
   getProfile(@Request() req) {
     const { password, ...result } = req.user;
     return result;
+  }
+
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiBody({ type: RefreshTokenDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Token refreshed successfully.',
+    type: LoginResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired refresh token.',
+  })
+  async refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<LoginResponseDto> {
+    return this.authService.refreshToken(refreshTokenDto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @ApiOperation({ summary: 'Logout user' })
+  @ApiResponse({
+    status: 200,
+    description: 'User logged out successfully.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  async logout(@Request() req): Promise<{ message: string }> {
+    await this.authService.logout(req.user.id);
+    return { message: 'Logged out successfully' };
   }
 }

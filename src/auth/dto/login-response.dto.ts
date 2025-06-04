@@ -7,4 +7,16 @@ export class LoginResponseDto {
     description: 'Access token for the authenticated user',
   })
   access_token: string;
+
+  @ApiProperty({
+    example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    description: 'Refresh token for getting new access token',
+  })
+  refresh_token: string;
+
+  @ApiProperty({
+    example: '2024-12-31T23:59:59.000Z',
+    description: 'Expiration date of the refresh token',
+  })
+  refresh_token_expires_at: Date;
 }
