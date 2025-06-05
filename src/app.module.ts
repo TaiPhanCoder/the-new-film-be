@@ -6,6 +6,7 @@ import { typeOrmConfig } from './config/typeorm.config';
 import { redisConfig } from './config/redis.config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { MovieModule } from './movie/movie.module';
 import { ConfigModule } from '@nestjs/config';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { RedisService } from './common/services/redis.service';
@@ -20,6 +21,7 @@ import { RedisService } from './common/services/redis.service';
     CacheModule.registerAsync(redisConfig),
     UserModule,
     AuthModule,
+    MovieModule,
   ],
   providers: [
     {
