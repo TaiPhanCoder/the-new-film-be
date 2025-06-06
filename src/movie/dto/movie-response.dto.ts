@@ -34,6 +34,12 @@ export class MovieResponseDto {
   bannerUrl: string;
 
   @ApiProperty({
+    example: 'https://example.com/video.mp4',
+    description: 'The video URL of the movie',
+  })
+  videoUrl: string;
+
+  @ApiProperty({
     example: '1994-09-23',
     description: 'The release date of the movie',
   })
@@ -93,6 +99,7 @@ export class MovieResponseDto {
     this.description = movie.description;
     this.posterUrl = movie.posterUrl;
     this.bannerUrl = movie.bannerUrl;
+    this.videoUrl = movie.videoUrl;
     this.releaseDate = movie.releaseDate;
     this.duration = movie.duration;
     this.genre = movie.genre;

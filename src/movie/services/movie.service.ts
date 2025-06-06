@@ -1,14 +1,15 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
-import { MovieResponseDto } from './dto/movie-response.dto';
-import { Movie } from './entities/movie.entity';
-import { IMovieRepository } from './interfaces/movie.repository.interface';
+import { CreateMovieDto } from '../dto/create-movie.dto';
+import { UpdateMovieDto } from '../dto/update-movie.dto';
+import { MovieResponseDto } from '../dto/movie-response.dto';
+import { Movie } from '../entities/movie.entity';
+import { IMovieRepository } from '../interfaces/movie.repository.interface';
 
 @Injectable()
 export class MovieService {
@@ -106,7 +107,38 @@ export class MovieService {
     await this.movieRepository.deleteMovie(id);
   }
 
+  async toggleMovieStatus(id: string): Promise<MovieResponseDto> {
+    const movie = await this.movieRepository.findMovieById(id);
+    if (!movie) {
+      throw new NotFoundException('Movie not found');
+    }
+
+    const updatedMovie = await this.movieRepository.updateMovie(id, {
+      isActive: !movie.isActive,
+    });
+    if (!updatedMovie) {
+      throw new NotFoundException('Failed to update movie status');
+    }
+    return this.transformToResponseDto(updatedMovie);
+  }
+
   private transformToResponseDto(movie: Movie): MovieResponseDto {
-    return new MovieResponseDto(movie);
+    return {
+      id: movie.id,
+      title: movie.title,
+      description: movie.description,
+      genre: movie.genre,
+      releaseDate: movie.releaseDate,
+      duration: movie.duration,
+      rating: movie.rating,
+      director: movie.director,
+      cast: movie.cast,
+      posterUrl: movie.posterUrl,
+      bannerUrl: movie.bannerUrl,
+      videoUrl: movie.videoUrl,
+      isActive: movie.isActive,
+      createdAt: movie.createdAt,
+      updatedAt: movie.updatedAt,
+    };
   }
 }

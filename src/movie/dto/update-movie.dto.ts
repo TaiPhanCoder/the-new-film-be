@@ -49,6 +49,15 @@ export class UpdateMovieDto {
   bannerUrl?: string;
 
   @ApiProperty({
+    example: 'https://example.com/video.mp4',
+    description: 'The video URL of the movie',
+    required: false,
+  })
+  @IsUrl()
+  @IsOptional()
+  videoUrl?: string;
+
+  @ApiProperty({
     example: '1994-09-23',
     description: 'The release date of the movie (YYYY-MM-DD)',
     required: false,

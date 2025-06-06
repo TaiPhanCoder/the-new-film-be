@@ -46,6 +46,13 @@ lerna-debug.log*
 .temp
 .tmp
 
+# Upload files (keep directory structure but ignore actual files)
+uploads/**/*
+!uploads/
+!uploads/*/
+!uploads/**/.gitkeep
+!uploads/README.md
+
 # Runtime data
 pids
 *.pid

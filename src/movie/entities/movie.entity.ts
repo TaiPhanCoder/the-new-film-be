@@ -39,6 +39,13 @@ export class Movie {
   bannerUrl: string;
 
   @ApiProperty({
+    example: 'https://example.com/video.mp4',
+    description: 'The video URL of the movie',
+  })
+  @Column({ nullable: true })
+  videoUrl: string;
+
+  @ApiProperty({
     example: '1994-09-23',
     description: 'The release date of the movie',
   })

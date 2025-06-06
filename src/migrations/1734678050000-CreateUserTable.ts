@@ -1,12 +1,12 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class CreateMovieTable1734678000000 implements MigrationInterface {
-  name = 'CreateMovieTable1734678000000';
+export class CreateUserTable1734678050000 implements MigrationInterface {
+  name = 'CreateUserTable1734678050000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'movies',
+        name: 'users',
         columns: [
           {
             name: 'id',
@@ -16,61 +16,37 @@ export class CreateMovieTable1734678000000 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'title',
+            name: 'name',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: 'email',
+            type: 'varchar',
+            isNullable: false,
+            isUnique: true,
+          },
+          {
+            name: 'password',
             type: 'varchar',
             isNullable: false,
           },
           {
-            name: 'description',
-            type: 'text',
-            isNullable: true,
-          },
-          {
-            name: 'posterUrl',
+            name: 'username',
             type: 'varchar',
-            isNullable: true,
+            isNullable: false,
+            isUnique: true,
           },
           {
-            name: 'bannerUrl',
-            type: 'varchar',
-            isNullable: true,
-          },
-          {
-            name: 'releaseDate',
-            type: 'date',
-            isNullable: true,
-          },
-          {
-            name: 'duration',
-            type: 'integer',
-            isNullable: true,
-          },
-          {
-            name: 'genre',
-            type: 'varchar',
-            isNullable: true,
-          },
-          {
-            name: 'rating',
-            type: 'decimal',
-            precision: 3,
-            scale: 1,
-            isNullable: true,
-          },
-          {
-            name: 'director',
-            type: 'varchar',
-            isNullable: true,
-          },
-          {
-            name: 'cast',
-            type: 'text',
-            isNullable: true,
+            name: 'role',
+            type: 'enum',
+            enum: ['admin', 'user'],
+            default: "'user'",
           },
           {
             name: 'isActive',
             type: 'boolean',
-            default: true,
+            default: false,
           },
           {
             name: 'createdAt',
@@ -86,15 +62,19 @@ export class CreateMovieTable1734678000000 implements MigrationInterface {
         ],
         indices: [
           {
-            name: 'IDX_MOVIE_TITLE',
-            columnNames: ['title'],
+            name: 'IDX_USER_EMAIL',
+            columnNames: ['email'],
           },
           {
-            name: 'IDX_MOVIE_GENRE',
-            columnNames: ['genre'],
+            name: 'IDX_USER_USERNAME',
+            columnNames: ['username'],
           },
           {
-            name: 'IDX_MOVIE_ACTIVE',
+            name: 'IDX_USER_ROLE',
+            columnNames: ['role'],
+          },
+          {
+            name: 'IDX_USER_ACTIVE',
             columnNames: ['isActive'],
           },
         ],
@@ -104,6 +84,6 @@ export class CreateMovieTable1734678000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('movies');
+    await queryRunner.dropTable('users');
   }
 }

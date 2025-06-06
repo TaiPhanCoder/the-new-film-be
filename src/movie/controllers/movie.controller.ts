@@ -19,14 +19,14 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { MovieService } from './movie.service';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
-import { MovieResponseDto } from './dto/movie-response.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '../common/enums/role.enum';
+import { MovieService } from '../services/movie.service';
+import { CreateMovieDto } from '../dto/create-movie.dto';
+import { UpdateMovieDto } from '../dto/update-movie.dto';
+import { MovieResponseDto } from '../dto/movie-response.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { Role } from '../../common/enums/role.enum';
 
 @ApiTags('Movies')
 @Controller('movies')
@@ -102,7 +102,7 @@ export class MovieController {
   @ApiParam({
     name: 'genre',
     description: 'Movie genre',
-    example: 'Drama',
+    example: 'Action',
   })
   @ApiResponse({
     status: 200,
@@ -120,7 +120,7 @@ export class MovieController {
   @ApiParam({
     name: 'id',
     description: 'Movie ID',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponse({
     status: 200,
@@ -142,7 +142,7 @@ export class MovieController {
   @ApiParam({
     name: 'id',
     description: 'Movie ID',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiBody({ type: UpdateMovieDto })
   @ApiResponse({
@@ -172,7 +172,7 @@ export class MovieController {
   @ApiParam({
     name: 'id',
     description: 'Movie ID',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponse({
     status: 200,
@@ -182,5 +182,28 @@ export class MovieController {
   @ApiResponse({ status: 404, description: 'Movie not found.' })
   async deleteMovie(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.movieService.deleteMovie(id);
+  }
+
+  @Put(':id/toggle-status')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Toggle movie active status (Admin only)' })
+  @ApiParam({
+    name: 'id',
+    description: 'Movie ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The movie status has been successfully toggled.',
+    type: MovieResponseDto,
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 404, description: 'Movie not found.' })
+  async toggleMovieStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<MovieResponseDto> {
+    return this.movieService.toggleMovieStatus(id);
   }
 }

@@ -36,7 +36,7 @@ export class CreateMovieDto {
     description: 'The poster image URL of the movie',
     required: false,
   })
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsOptional()
   posterUrl?: string;
 
@@ -45,9 +45,18 @@ export class CreateMovieDto {
     description: 'The banner image URL of the movie',
     required: false,
   })
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsOptional()
   bannerUrl?: string;
+
+  @ApiProperty({
+    example: 'https://example.com/video.mp4',
+    description: 'The video URL of the movie',
+    required: false,
+  })
+  @IsUrl({ require_tld: false })
+  @IsOptional()
+  videoUrl?: string;
 
   @ApiProperty({
     example: '1994-09-23',
